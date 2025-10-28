@@ -1,0 +1,9 @@
+.my-category-swiper {
+  padding: 8px 0;
+}
+
+.category-pill {
+  border: 1px solid rgba(255,255,255,0.85);
+  color: #fff !important;
+  background: transparent;
+}
