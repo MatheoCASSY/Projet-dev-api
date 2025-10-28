@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import RawgStore from "./pages/RawgStore";
 import GameDetail from "./pages/GameDetail";
 import Home from "./pages/Home";

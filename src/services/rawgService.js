@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 export default function useRawg(opts) {
   const [state, setState] = useState({ games: [], loading: true, error: null });
 
+  // derive a stable key for opts to avoid complex expressions in deps
+  const optsKey = opts ? JSON.stringify(opts) : opts;
+
   useEffect(() => {
     let mounted = true;
     const key = process.env.REACT_APP_RAWG_API_KEY;
@@ -41,8 +44,8 @@ export default function useRawg(opts) {
     return () => {
       mounted = false;
     };
-    // stringify opts to avoid object identity issues in deps
-  }, [opts ? JSON.stringify(opts) : opts]);
+    // use optsKey in the dependency array (stable primitive)
+  }, [optsKey]);
 
   return state;
 }
