@@ -3,7 +3,11 @@
 }
 
 .category-pill {
-  border: 1px solid rgba(255,255,255,0.85);
-  color: #fff !important;
+  /* Use inherited text color so buttons are visible on light backgrounds.
+     Border tuned for light theme; you can override in a dark theme if needed. */
+  border: 1px solid rgba(0,0,0,0.15);
+  color: inherit !important;
   background: transparent;
+  padding: 0.25rem 0.6rem;
+  font-weight: 500;
 }

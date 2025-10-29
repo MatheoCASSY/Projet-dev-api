@@ -5,7 +5,7 @@ import "swiper/css/navigation";
 import './CategoryCarousel.css';
 import { Link } from 'react-router-dom';
 
-export default function CategoryCarousel({ categories = [] }) {
+export default function CategoryCarousel({ categories = [], onCategoryClick }) {
   if (!categories || categories.length === 0) return <p className="text-muted">Aucune catégorie.</p>;
 
   return (
@@ -14,13 +14,24 @@ export default function CategoryCarousel({ categories = [] }) {
       slidesPerView={'auto'}
       className="my-category-swiper"
     >
-      {categories.map((c) => (
-        <SwiperSlide key={c} style={{ width: 'auto' }}>
-          <Link to={`/store?genre=${encodeURIComponent(c)}`} className="btn btn-outline-light btn-sm category-pill">
-            {c}
-          </Link>
-        </SwiperSlide>
-      ))}
+      {categories.map((c) => {
+        // c can be either a string (legacy) or an object { name, slug }
+        const label = typeof c === 'string' ? c : c.name;
+        const value = typeof c === 'string' ? c : c.slug;
+        return (
+          <SwiperSlide key={value} style={{ width: 'auto' }}>
+            {onCategoryClick ? (
+              <button type="button" className="btn btn-outline-light btn-sm category-pill" onClick={() => onCategoryClick(value)}>
+                {label}
+              </button>
+            ) : (
+              <Link to={`/store?genre=${encodeURIComponent(value)}`} className="btn btn-outline-light btn-sm category-pill">
+                {label}
+              </Link>
+            )}
+          </SwiperSlide>
+        );
+      })}
     </Swiper>
   );
 }

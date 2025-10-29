@@ -1,9 +1,13 @@
 import React from 'react';
+import BackButton from './BackButton';
 
-export default function PageContainer({ children }) {
-  return (
-    <div className="container py-4 home-root" style={{ background: '#0b0b0b', minHeight: '100vh', color: '#fff' }}>
-      {children}
-    </div>
-  );
+export default function PageContainer({ children, showBack = false, onBack }) {
+	return (
+		<div className="container my-4">
+			<div className="mb-3">
+				<BackButton forceShow={showBack} onBack={onBack} />
+			</div>
+			{children}
+		</div>
+	);
 }
