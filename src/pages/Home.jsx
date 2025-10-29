@@ -88,7 +88,7 @@ export default function Home() {
       {/* Si une recherche ou un filtre actif → vue “store” */}
   {(urlSearch || urlGenre) ? (
         <>
-          <h2 className="display-6 mb-4">Boutique</h2>
+          <h2 className="display-6 mb-4">Bibliothèque</h2>
           {(urlSearch || urlGenre) && (
             <p className="small text-muted">
               {urlSearch && <>Résultats pour : <strong>{urlSearch}</strong> </>}

@@ -73,7 +73,7 @@ export default function GameCard({ game }) {
             </div>
           )}
           <div className="mt-auto d-flex justify-content-between align-items-center">
-            <button className="btn btn-sm btn-outline-primary">Ajouter au panier</button>
+            <button className="btn btn-sm btn-outline-primary">+ d'infos</button>
             <small className="text-muted">{game.released || ''}</small>
           </div>
         </div>
