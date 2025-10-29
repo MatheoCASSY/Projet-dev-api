@@ -110,12 +110,22 @@ export default function GameDetail() {
                     <h6>Succès (Steam)</h6>
                     {steamLoading && <div className="small text-muted">Chargement des données Steam...</div>}
                     {steamError && (
-                      <div className="small text-warning d-flex flex-column">
-                        <div>Données Steam indisponibles (CORS ou réseau).</div>
-                        <div className="mt-2">
-                          <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => { console.warn('Steam error:', steamError); retrySteam(); }}>Réessayer</button>
+                      <div>
+                        <div className="small text-warning">Données Steam indisponibles (CORS ou réseau). Affichage des infos RAWG en fallback.</div>
+                        <div className="mt-2 d-flex gap-2">
+                          <button className="btn btn-sm btn-outline-secondary" onClick={() => { console.warn('Steam error:', steamError); retrySteam(); }}>Réessayer</button>
                           {steamUrl && <a className="btn btn-sm btn-link" href={steamUrl} target="_blank" rel="noreferrer">Voir sur Steam</a>}
+                          {game && (game.stores && game.stores.length > 0) && (
+                            <a className="btn btn-sm btn-primary" href={game.stores[0].url || '#'} target="_blank" rel="noreferrer">Voir sur le magasin</a>
+                          )}
                         </div>
+                        {/* RAWG fallback summary */}
+                        {game && (
+                          <div className="mt-2 small text-muted">
+                            <div>Note RAWG : {game.rating || '—'} / 5</div>
+                            <div>{(game.ratings || []).length > 0 ? `Détails des évaluations disponibles sur RAWG` : ''}</div>
+                          </div>
+                        )}
                       </div>
                     )}
                     {!steamLoading && !steamError && (

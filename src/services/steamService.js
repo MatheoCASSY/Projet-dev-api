@@ -20,31 +20,28 @@ export default function useSteam(appid) {
     const key = process.env.REACT_APP_STEAM_API_KEY;
     setState(s => ({ ...s, loading: true, error: null }));
 
-    const storeUrl = `https://store.steampowered.com/api/appdetails?appids=${appid}&cc=fr&l=french`;
-    const globalUrl = `https://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v2/?gameid=${appid}`;
-    const schemaUrl = key ? `https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?key=${key}&appid=${appid}` : null;
-    const reviewsUrl = `https://store.steampowered.com/appreviews/${appid}?json=1&language=all&purchase_type=all&num_per_page=3`;
-
-    Promise.all([
-      fetch(storeUrl).then(r => r.json()).catch((e) => ({ error: e })),
-      fetch(globalUrl).then(r => r.json()).catch(() => null),
-      schemaUrl ? fetch(schemaUrl).then(r => r.json()).catch(() => null) : Promise.resolve(null),
-      fetch(reviewsUrl).then(r => r.json()).catch(() => null),
-    ])
-      .then(([storeRes, globalRes, schemaRes, reviewsRes]) => {
+    // We call our server-side proxy to fetch Steam data; the proxy composes the
+    // Steam endpoints and returns { store, global, schema, reviews, community_achievements }.
+    const proxyUrl = `/api/steam-proxy?appid=${encodeURIComponent(appid)}`;
+    fetch(proxyUrl)
+      .then(r => r.json())
+      .then(({ store: storeRes, global: globalRes, schema: schemaRes, reviews: reviewsRes, community_achievements: communityAchievements }) => {
         if (!mounted) return;
-        // handle possible network/CORS error objects
-        if (storeRes && storeRes.error) {
-          setState({ store: null, achievements: [], global: [], reviews: [], review_summary: null, loading: false, error: 'Failed to fetch Steam store data (CORS or network)'});
-          return;
-        }
-
+        // storeRes comes from server proxy. storeRes is expected to be the raw
+        // response from store.steampowered.com/api/appdetails (an object keyed by appid)
         const store = storeRes && storeRes[appid] && storeRes[appid].success ? storeRes[appid].data : null;
         const global = globalRes && globalRes.achievementpercentages ? globalRes.achievementpercentages.achievements : [];
         const achievements = schemaRes && schemaRes.game && schemaRes.game.availableGameStats && schemaRes.game.availableGameStats.achievements ? schemaRes.game.availableGameStats.achievements : [];
         const reviews = reviewsRes && reviewsRes.reviews ? reviewsRes.reviews : [];
         const review_summary = reviewsRes && reviewsRes.query_summary ? reviewsRes.query_summary : null;
-        setState({ store, achievements, global, reviews, review_summary, loading: false, error: null });
+        // If no useful data was returned, surface an error so UI can fallback to RAWG
+        if (!store && (!achievements || achievements.length === 0) && (!reviews || reviews.length === 0) && (!global || global.length === 0) && (!communityAchievements || communityAchievements.length === 0)) {
+          setState({ store: null, achievements: [], global: [], reviews: [], review_summary: null, loading: false, error: 'Steam data unavailable (server proxy).'});
+          return;
+        }
+        // prefer achievements from schema; otherwise include communityAchievements if present
+        const finalAchievements = (achievements && achievements.length > 0) ? achievements : (communityAchievements || []);
+        setState({ store, achievements: finalAchievements, global, reviews, review_summary, loading: false, error: null });
       })
       .catch(err => {
         if (!mounted) return;

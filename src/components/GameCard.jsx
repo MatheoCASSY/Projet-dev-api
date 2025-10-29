@@ -57,10 +57,19 @@ export default function GameCard({ game }) {
             </div>
           )}
           {!steamData && steamAppId && (
-            <div className="mb-2 small text-warning d-flex align-items-center gap-2">
-              <span>Données Steam indisponibles</span>
-              <button className="btn btn-sm btn-outline-secondary" onClick={() => { console.warn('Steam fetch failed for appid', steamAppId); retrySteam(); }}>Réessayer</button>
-              {steamUrl && <a className="btn btn-sm btn-link" href={steamUrl} target="_blank" rel="noreferrer">Voir sur Steam</a>}
+            <div className="mb-2 small text-warning d-flex flex-column">
+              <div className="d-flex align-items-center gap-2 mb-1">
+                <span>Données Steam indisponibles</span>
+                <button className="btn btn-sm btn-outline-secondary" onClick={() => { console.warn('Steam fetch failed for appid', steamAppId); retrySteam(); }}>Réessayer</button>
+                {steamUrl && <a className="btn btn-sm btn-link" href={steamUrl} target="_blank" rel="noreferrer">Voir sur Steam</a>}
+              </div>
+              {/* RAWG fallback: show RAWG rating if available */}
+              {game && game.rating && (
+                <div className="small text-muted">Note RAWG: {game.rating} / 5</div>
+              )}
+              {game && (game.stores || []).length > 0 && (
+                <div className="small text-muted">Disponible sur : {(game.stores || []).map(s => s.store?.name || s.url).filter(Boolean).slice(0,3).join(', ')}</div>
+              )}
             </div>
           )}
           <div className="mt-auto d-flex justify-content-between align-items-center">
