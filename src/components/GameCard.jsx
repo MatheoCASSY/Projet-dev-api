@@ -4,7 +4,6 @@ import useSteam from '../services/steamService';
 export default function GameCard({ game }) {
   const platforms = (game.platforms || []).map(p => p.platform?.name).filter(Boolean);
 
-  // detect steam appid from RAWG stores if present
   const steamStoreCandidate = (game.stores || []).find(
     (s) => (s.store && s.store.slug === 'steam') || (s.url && s.url.includes('store.steampowered.com'))
   );
@@ -15,7 +14,6 @@ export default function GameCard({ game }) {
     if (m) steamAppId = m[1];
   }
 
-  // call hook unconditionally (steamAppId may be null)
   const { store: steamData, review_summary: steamReviewSummary, retry: retrySteam, steamUrl } = useSteam(steamAppId);
 
   return (
@@ -28,17 +26,14 @@ export default function GameCard({ game }) {
             className="card-img-top img-fluid"
             style={{ height: 180, objectFit: 'cover', width: '100%' }}
           />
-          {/* badge rating */}
           <span className="badge bg-warning text-dark position-absolute" style={{ left: 12, bottom: 12 }}>
             ⭐ {game.rating || '—'}
           </span>
-          {/* Steam price badge */}
           {steamData && steamData.price_overview && (
             <span className="badge bg-success position-absolute" style={{ right: 12, top: 12 }}>
               {steamData.price_overview.discount_percent > 0 ? `-${steamData.price_overview.discount_percent}%` : 'Prix'}
             </span>
           )}
-          {/* Steam review short */}
           {steamReviewSummary && (
             <span className="badge bg-dark text-light position-absolute" style={{ right: 12, bottom: 12 }}>
               {steamReviewSummary.review_score_desc || ''}
@@ -57,14 +52,23 @@ export default function GameCard({ game }) {
             </div>
           )}
           {!steamData && steamAppId && (
-            <div className="mb-2 small text-warning d-flex align-items-center gap-2">
-              <span>Données Steam indisponibles</span>
-              <button className="btn btn-sm btn-outline-secondary" onClick={() => { console.warn('Steam fetch failed for appid', steamAppId); retrySteam(); }}>Réessayer</button>
-              {steamUrl && <a className="btn btn-sm btn-link" href={steamUrl} target="_blank" rel="noreferrer">Voir sur Steam</a>}
+            <div className="mb-2 small text-warning d-flex flex-column">
+              <div className="d-flex align-items-center gap-2 mb-1">
+                <span>Données Steam indisponibles</span>
+                <button className="btn btn-sm btn-outline-secondary" onClick={() => { console.warn('Steam fetch failed for appid', steamAppId); retrySteam(); }}>Réessayer</button>
+                {steamUrl && <a className="btn btn-sm btn-link" href={steamUrl} target="_blank" rel="noreferrer">Voir sur Steam</a>}
+              </div>
+              {/* RAWG fallback: show RAWG rating if available */}
+              {game && game.rating && (
+                <div className="small text-muted">Note RAWG: {game.rating} / 5</div>
+              )}
+              {game && (game.stores || []).length > 0 && (
+                <div className="small text-muted">Disponible sur : {(game.stores || []).map(s => s.store?.name || s.url).filter(Boolean).slice(0,3).join(', ')}</div>
+              )}
             </div>
           )}
           <div className="mt-auto d-flex justify-content-between align-items-center">
-            <button className="btn btn-sm btn-outline-primary">Ajouter au panier</button>
+            <button className="btn btn-sm btn-outline-primary">+ d'infos</button>
             <small className="text-muted">{game.released || ''}</small>
           </div>
         </div>

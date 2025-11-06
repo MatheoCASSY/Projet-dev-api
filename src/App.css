@@ -14,18 +14,18 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: var(--surface);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: var(--text);
 }
 
 .App-link {
-  color: #61dafb;
+  color: var(--accent);
 }
 
 @keyframes App-logo-spin {
@@ -43,16 +43,20 @@
 }
 
 .wireframe-section {
-  border: 2px solid rgba(255,255,255,0.85);
-  background: rgba(0,0,0,0.35);
+  border: 2px solid var(--muted);
+  background: rgba(0,0,0,0.12);
   border-radius: 6px;
+}
+
+.wireframe-section h2.h5 {
+  color: #ffffff !important;
 }
 
 /* ensure cards inside have white borders where appropriate */
 .card {
-  border: 1px solid rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
 }
 
 .btn-outline-light {
-  border-color: rgba(255,255,255,0.85) !important;
+  border-color: var(--muted) !important;
 }

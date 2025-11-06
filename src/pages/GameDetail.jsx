@@ -5,7 +5,6 @@ import useSteam from '../services/steamService';
 export default function GameDetail() {
   const { id } = useParams();
   const { game, screenshots, loading, error } = useRawgGame(id);
-  // Try to detect Steam appid from RAWG game stores (safe before early returns)
   const steamStoreCandidate = game?.stores?.find(s => (s.store && s.store.slug === 'steam') || (s.url && s.url.includes('store.steampowered.com')));
   let steamAppId = null;
   if (steamStoreCandidate) {
@@ -14,10 +13,7 @@ export default function GameDetail() {
     if (m) steamAppId = m[1];
   }
 
-  // Call hook unconditionally (can accept null appid)
   const { store: steamStoreData, achievements: steamAchievements, global: steamGlobal, reviews: steamReviews, review_summary: steamReviewSummary, loading: steamLoading, error: steamError, retry: retrySteam, steamUrl } = useSteam(steamAppId);
-
-  // Traduction supprimée — affichage original conservé
 
   if (loading) return <div className="container py-4">Chargement...</div>;
   if (error) return <div className="container py-4"><div className="alert alert-danger">Erreur : {String(error)}</div></div>;
@@ -110,12 +106,22 @@ export default function GameDetail() {
                     <h6>Succès (Steam)</h6>
                     {steamLoading && <div className="small text-muted">Chargement des données Steam...</div>}
                     {steamError && (
-                      <div className="small text-warning d-flex flex-column">
-                        <div>Données Steam indisponibles (CORS ou réseau).</div>
-                        <div className="mt-2">
-                          <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => { console.warn('Steam error:', steamError); retrySteam(); }}>Réessayer</button>
+                      <div>
+                        <div className="small text-warning">Données Steam indisponibles (CORS ou réseau). Affichage des infos RAWG en fallback.</div>
+                        <div className="mt-2 d-flex gap-2">
+                          <button className="btn btn-sm btn-outline-secondary" onClick={() => { console.warn('Steam error:', steamError); retrySteam(); }}>Réessayer</button>
                           {steamUrl && <a className="btn btn-sm btn-link" href={steamUrl} target="_blank" rel="noreferrer">Voir sur Steam</a>}
+                          {game && (game.stores && game.stores.length > 0) && (
+                            <a className="btn btn-sm btn-primary" href={game.stores[0].url || '#'} target="_blank" rel="noreferrer">Voir sur le magasin</a>
+                          )}
                         </div>
+                        {/* RAWG fallback summary */}
+                        {game && (
+                          <div className="mt-2 small text-muted">
+                            <div>Note RAWG : {game.rating || '—'} / 5</div>
+                            <div>{(game.ratings || []).length > 0 ? `Détails des évaluations disponibles sur RAWG` : ''}</div>
+                          </div>
+                        )}
                       </div>
                     )}
                     {!steamLoading && !steamError && (

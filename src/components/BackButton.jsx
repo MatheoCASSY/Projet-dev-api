@@ -4,7 +4,6 @@ export default function BackButton({ forceShow = false, onBack }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Don't show back button on the root/home page unless forced
   if (!forceShow && (!location || location.pathname === '/' || location.pathname === '')) return null;
 
   const handle = () => {

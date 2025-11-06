@@ -11,22 +11,18 @@ export default function Home() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // controlled input separate from the active search param
   const [input, setInput] = useState('');
 
-  // derive active filters from URL so Home can replace RawgStore
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const urlSearch = params.get('search') || '';
   const urlGenre = params.get('genre') || '';
   const urlPage = Number(params.get('page') || 1);
 
-  // keep the input field in sync with the URL search param
   useEffect(() => { setInput(urlSearch); }, [urlSearch]);
 
   const opts = useMemo(() => ({ search: urlSearch, genre: urlGenre || '', page: urlPage }), [urlSearch, urlGenre, urlPage]);
   const { games, loading, error } = useRawg(opts);
 
-  // Liste des catégories uniques (keep both name and slug) — prefer slug for filtering
   const categories = (() => {
     const items = (games || []).flatMap(g => (g.genres || []).map(ge => ({ name: ge.name, slug: ge.slug })));
     const map = new Map();
@@ -41,25 +37,21 @@ export default function Home() {
     const p = new URLSearchParams();
     if (input) p.set('search', input);
     if (urlGenre) p.set('genre', urlGenre);
-    // reset page when performing a new search
     if (p.has('search')) p.delete('page');
     navigate(`${location.pathname}${p.toString() ? `?${p.toString()}` : ''}`);
   };
 
-  // when in store mode we use the games returned by the hook (already filtered by RAWG)
   const filteredGames = games || [];
 
   const onCategoryClick = (c) => {
     const p = new URLSearchParams();
     if (c) p.set('genre', c);
     if (urlSearch) p.set('search', urlSearch);
-    // reset page when selecting a new category
     if (p.has('genre')) p.delete('page');
     navigate(`${location.pathname}${p.toString() ? `?${p.toString()}` : ''}`);
   };
 
   const handleBackReset = () => {
-    // clear search/genre/page params
     navigate(location.pathname);
   };
 
@@ -67,7 +59,7 @@ export default function Home() {
   <PageContainer showBack={Boolean(urlSearch || urlGenre)} onBack={handleBackReset}>
       {/* Header : barre de recherche */}
       <header className="d-flex align-items-center justify-content-between mb-4 gap-3">
-        <h1 className="h4 mb-0">J'ai pas d'idée</h1>
+        <h1 className="h4 mb-0">JeuScope</h1>
         <div className="flex-grow-1 ms-3">
             <form onSubmit={onSearch} className="input-group">
             <input
@@ -88,7 +80,7 @@ export default function Home() {
       {/* Si une recherche ou un filtre actif → vue “store” */}
   {(urlSearch || urlGenre) ? (
         <>
-          <h2 className="display-6 mb-4">Boutique</h2>
+          <h2 className="display-6 mb-4">Bibliothèque</h2>
           {(urlSearch || urlGenre) && (
             <p className="small text-muted">
               {urlSearch && <>Résultats pour : <strong>{urlSearch}</strong> </>}
@@ -103,7 +95,6 @@ export default function Home() {
                   type="button"
                   className="btn btn-outline-primary"
                   onClick={() => {
-                    // increment page in URL so useRawg will fetch the next page(s)
                     const next = new URLSearchParams(location.search);
                     const cur = Number(next.get('page') || 1);
                     next.set('page', String(cur + 1));
@@ -121,7 +112,7 @@ export default function Home() {
         <>
           {/* Carrousel vedette */}
           <section className="mb-4 wireframe-section p-3">
-            <h2 className="h5 text-muted">Jeux en vedette</h2>
+            <h2 className="h5 text-white">Jeux en vedette</h2>
             <div className="mt-3">
               {!loading && !error && <FeaturedCarousel games={(games || []).slice(0, 12)} />}
             </div>
@@ -129,7 +120,7 @@ export default function Home() {
 
           {/* Catégories */}
           <section className="mb-4 wireframe-section p-3">
-            <h2 className="h5 text-muted">Catégories</h2>
+            <h2 className="h5 text-white">Catégories</h2>
             <div className="mt-3">
                 <CategoryCarousel
                   categories={categories}
@@ -143,7 +134,7 @@ export default function Home() {
 
           {/* Derniers jeux */}
           <section className="mb-4 wireframe-section p-3">
-            <h2 className="h5 text-muted">Derniers jeux parus</h2>
+            <h2 className="h5 text-white">Derniers jeux parus</h2>
             <div className="row g-3 mt-2">
               {(games || []).slice(0, 4).map(g => (
                 <div key={g.id} className="col-6 col-md-3">
@@ -155,7 +146,7 @@ export default function Home() {
 
           {/* Tous les jeux récents */}
           <section className="mb-4 wireframe-section p-3">
-            <h2 className="h5 text-muted">Tous les jeux (récents d’abord)</h2>
+            <h2 className="h5 text-white">Tous les jeux (récents d’abord)</h2>
             <div className="mt-3">
               <GamesGrid
                 games={(games || []).slice().sort(
