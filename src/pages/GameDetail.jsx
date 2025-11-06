@@ -5,7 +5,6 @@ import useSteam from '../services/steamService';
 export default function GameDetail() {
   const { id } = useParams();
   const { game, screenshots, loading, error } = useRawgGame(id);
-  // Try to detect Steam appid from RAWG game stores (safe before early returns)
   const steamStoreCandidate = game?.stores?.find(s => (s.store && s.store.slug === 'steam') || (s.url && s.url.includes('store.steampowered.com')));
   let steamAppId = null;
   if (steamStoreCandidate) {
@@ -14,10 +13,7 @@ export default function GameDetail() {
     if (m) steamAppId = m[1];
   }
 
-  // Call hook unconditionally (can accept null appid)
   const { store: steamStoreData, achievements: steamAchievements, global: steamGlobal, reviews: steamReviews, review_summary: steamReviewSummary, loading: steamLoading, error: steamError, retry: retrySteam, steamUrl } = useSteam(steamAppId);
-
-  // Traduction supprimée — affichage original conservé
 
   if (loading) return <div className="container py-4">Chargement...</div>;
   if (error) return <div className="container py-4"><div className="alert alert-danger">Erreur : {String(error)}</div></div>;

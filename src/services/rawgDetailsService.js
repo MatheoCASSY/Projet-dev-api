@@ -25,7 +25,6 @@ export default function useRawgGame(id) {
     ])
       .then(([details, shots, stores]) => {
         if (!mounted) return;
-        // Merge stores results into details.stores if available
         if (stores && stores.results) {
           details.stores = stores.results;
         }

@@ -15,3 +15,38 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@layer base {
+  /* Light variables (fallback) */
+  :root {
+    --bg: #ffffff;
+    --surface: #f8fafc;
+    --muted: #6b7280;
+    --text: #0f1724;
+    --accent: #2563eb;
+  }
+
+  /* Dark theme variables — applied when .dark is present on <html> */
+  .dark {
+    --bg: #0b1220;
+    --surface: #0f1724;
+    --muted: #94a3b8;
+    --text: #e6eef8;
+    --accent: #60a5fa;
+  }
+
+  html, body, #root {
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  /* utility helper for non-tailwind CSS components */
+  .card {
+    background-color: var(--surface);
+    color: var(--text);
+  }
+}
