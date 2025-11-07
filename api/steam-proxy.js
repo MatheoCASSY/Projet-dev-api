@@ -1,7 +1,3 @@
-// Serverless proxy to fetch Steam data (store, global achievements, schema, reviews)
-// and to fetch/parse the Steam Community achievements page as a fallback.
-// Deploy this file under /api/ to Vercel or use a small local server to test.
-
 const fetchJson = async (url) => {
   try {
     const r = await fetch(url);
@@ -22,8 +18,6 @@ const fetchText = async (url) => {
   }
 };
 
-// Simple HTML parser to extract achievements from Steam Community achievements page.
-// This is a best-effort parser that extracts name, description and icon URL.
 const parseCommunityAchievements = (html) => {
   if (!html) return [];
   const achievements = [];
