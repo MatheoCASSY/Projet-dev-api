@@ -1,70 +1,114 @@
-# Getting Started with Create React App
+# JeuScope — README complet
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Bienvenue dans JeuScope — une application React qui vise à recréer l'expérience d'un store de jeux vidéo, mais de façon plus indépendante et orientée découverte.
 
-## Available Scripts
+Objectif du projet
+- Créer une interface qui agrège des données de jeux (via l'API RAWG) pour proposer : listes, filtres par genre, fiches détaillées.
+- Ajouter un composant serveur (proxy) pour récupérer des données Steam (prix, succès, avis) sans être bloqué par CORS.
+- Rendre le frontend autonome : l'objectif est de fournir une alternative légère à un store centralisé en combinant plusieurs sources publiques d'information.
 
-In the project directory, you can run:
+Fonctionnalités clés
+- Liste de jeux et recherche (RAWG).
+- Carrousel de jeux vedette et grille de jeux.
+- Filtrage par catégorie/genre.
+- Fiches détaillées avec images, métadonnées et données Steam (via proxy).
 
-### `npm start`
+Prérequis
+- Node.js (>=14) et npm.
+- Compte RAWG pour obtenir une clé API.
+- (Optionnel) Compte Steam pour obtenir une Steam Web API key si tu veux des données Steam supplémentaires.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Où créer les clés d'API (pas-à-pas)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1) RAWG — clé API
+- Va sur https://rawg.io/apidocs
+- Crée un compte ou connecte-toi.
+- Suis la documentation pour demander une clé API (généralement depuis ton tableau de bord développeur).
+- Une fois obtenue, copie la clé : elle sera utilisée dans la variable `REACT_APP_RAWG_API_KEY`.
 
-### `npm test`
+2) Steam — Steam Web API Key (optionnel)
+- Va sur https://steamcommunity.com/dev/apikey
+- Connecte-toi avec ton compte Steam.
+- Indique le nom de domaine de ton application (pour local dev tu peux mettre `localhost`) et crée la clé.
+- Copie la clé pour `REACT_APP_STEAM_API_KEY`. Sans cette clé le proxy fonctionne encore, mais certains endpoints (schema des succès) ne seront pas disponibles.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Configuration du projet (.env)
 
-### `npm run build`
+- Un fichier d'exemple `.env.example` est présent dans le dépôt. Pour créer ton fichier local :
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+PowerShell (Windows) :
+```powershell
+Copy-Item .env.example .env
+notepad .env
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Remplace les valeurs par tes clés :
+```bash
+REACT_APP_RAWG_API_KEY=ta_clef_rawg_ici
+REACT_APP_STEAM_API_KEY=ta_clef_steam_ici   # optionnel
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Important : ne commite jamais `.env` avec tes clés publiques. Ajoute `.env` à `.gitignore` si ce n'est pas déjà fait.
 
-### `npm run eject`
+Lancer et tester en local
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1) Installer les dépendances :
+```powershell
+npm install
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2) Démarrer l'application en mode développement :
+```powershell
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3) Ouvre http://localhost:3000
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Vérifications utiles
+- Si l'app affiche "Missing RAWG API key", vérifie `.env` et relance `npm start`.
+- Pour tester le proxy Steam localement, tu peux soit déployer (voir ci‑dessous), soit émuler avec Vercel CLI :
 
-## Learn More
+Emuler la fonction proxy avec Vercel (optionnel)
+- Installe la CLI Vercel :
+```powershell
+npm i -g vercel
+```
+- Lance l'émulation locale depuis la racine du projet :
+```powershell
+vercel dev
+```
+- L'endpoint sera disponible sur `http://localhost:3000/api/steam-proxy` ou à l'URL indiquée par `vercel dev`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Démarrer un proxy local simple (Express) — optionnel
+- Si tu préfères éviter Vercel, tu peux ajouter un petit serveur Express pour exposer `api/steam-proxy.js` localement :
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Installer express :
+```powershell
+npm install express node-fetch@2
+```
+- Créer un fichier `server.js` (exemple) à la racine :
+```javascript
+// server.js
+const express = require('express');
+const proxy = require('./api/steam-proxy');
+const app = express();
+app.get('/api/steam-proxy', (req, res) => proxy(req, res));
+const port = process.env.PORT || 3001;
+app.listen(port, () => console.log('Proxy listening on', port));
+```
+- Lancer :
+```powershell
+node server.js
+```
+- Le proxy sera accessible sur `http://localhost:3001/api/steam-proxy?appid=XXXXX`.
 
-### Code Splitting
+Construction (production)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```powershell
+npm run build
+```
 
-### Analyzing the Bundle Size
+Le dossier `build/` contient l'application prête à être servie.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Déploiement recommandé (Vercel)
+- Vercel est simple : connecte ton repo et ajoute les variables d'environnement `REACT_APP_RAWG_API_KEY` et `REACT_APP_STEAM_API_KEY` dans les settings du projet.
