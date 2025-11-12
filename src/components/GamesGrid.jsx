@@ -25,7 +25,7 @@ export default function GamesGrid({ games }) {
               <p className="card-text text-light small mb-2">{(hero.platforms || []).map(p => p.platform?.name).filter(Boolean).slice(0,3).join(' • ')}</p>
               <div>
                 <button className="btn btn-primary me-2">Voir le jeu</button>
-   
+                <button className="btn btn-outline-light">Ajouter au panier</button>
               </div>
             </div>
           </div>
